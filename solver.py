@@ -44,6 +44,10 @@ def solve(dummy, clauses):
 		b = 2 * variables.index(-list[1]) + 1 if (list[1] < 0) else 2 * variables.index(list[1])
 		c = 2 * variables.index(-list[2]) + 1 if (list[2] < 0) else 2 * variables.index(list[2])
 		s.add(x[a]+x[b]+x[c]-x[a]*x[b]-x[b]*x[c]-x[a]*x[c] == 1.0)
+		a = 2 * variables.index(-list[0]) if (list[0] < 0) else 2 * variables.index(list[0]) + 1
+		b = 2 * variables.index(-list[1]) if (list[1] < 0) else 2 * variables.index(list[1]) + 1
+		c = 2 * variables.index(-list[2]) if (list[2] < 0) else 2 * variables.index(list[2]) + 1
+		s.add(x[a]+x[b]+x[c]-x[a]*x[b]-x[b]*x[c]-x[a]*x[c] == 1.0)
 	
 	result = s.check()
 	if result == z3.unsat:
