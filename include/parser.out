@@ -1,0 +1,124 @@
+Created by PLY version 3.6 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> start
+Rule 1     start -> P_LINE CNF VARIABLE VARIABLE
+Rule 2     start -> variableList TERMCHAR
+Rule 3     start -> variableList
+Rule 4     start -> empty
+Rule 5     variableList -> variableList VARIABLE
+Rule 6     variableList -> VARIABLE
+Rule 7     empty -> <empty>
+
+Terminals, with rules where they appear
+
+CNF                  : 1
+P_LINE               : 1
+TERMCHAR             : 2
+VARIABLE             : 1 1 5 6
+error                : 
+
+Nonterminals, with rules where they appear
+
+empty                : 4
+start                : 0
+variableList         : 2 3 5
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . start
+    (1) start -> . P_LINE CNF VARIABLE VARIABLE
+    (2) start -> . variableList TERMCHAR
+    (3) start -> . variableList
+    (4) start -> . empty
+    (5) variableList -> . variableList VARIABLE
+    (6) variableList -> . VARIABLE
+    (7) empty -> .
+
+    P_LINE          shift and go to state 2
+    VARIABLE        shift and go to state 3
+    $end            reduce using rule 7 (empty -> .)
+
+    start                          shift and go to state 1
+    variableList                   shift and go to state 4
+    empty                          shift and go to state 5
+
+state 1
+
+    (0) S' -> start .
+
+
+
+state 2
+
+    (1) start -> P_LINE . CNF VARIABLE VARIABLE
+
+    CNF             shift and go to state 6
+
+
+state 3
+
+    (6) variableList -> VARIABLE .
+
+    TERMCHAR        reduce using rule 6 (variableList -> VARIABLE .)
+    VARIABLE        reduce using rule 6 (variableList -> VARIABLE .)
+    $end            reduce using rule 6 (variableList -> VARIABLE .)
+
+
+state 4
+
+    (2) start -> variableList . TERMCHAR
+    (3) start -> variableList .
+    (5) variableList -> variableList . VARIABLE
+
+    TERMCHAR        shift and go to state 7
+    $end            reduce using rule 3 (start -> variableList .)
+    VARIABLE        shift and go to state 8
+
+
+state 5
+
+    (4) start -> empty .
+
+    $end            reduce using rule 4 (start -> empty .)
+
+
+state 6
+
+    (1) start -> P_LINE CNF . VARIABLE VARIABLE
+
+    VARIABLE        shift and go to state 9
+
+
+state 7
+
+    (2) start -> variableList TERMCHAR .
+
+    $end            reduce using rule 2 (start -> variableList TERMCHAR .)
+
+
+state 8
+
+    (5) variableList -> variableList VARIABLE .
+
+    TERMCHAR        reduce using rule 5 (variableList -> variableList VARIABLE .)
+    VARIABLE        reduce using rule 5 (variableList -> variableList VARIABLE .)
+    $end            reduce using rule 5 (variableList -> variableList VARIABLE .)
+
+
+state 9
+
+    (1) start -> P_LINE CNF VARIABLE . VARIABLE
+
+    VARIABLE        shift and go to state 10
+
+
+state 10
+
+    (1) start -> P_LINE CNF VARIABLE VARIABLE .
+
+    $end            reduce using rule 1 (start -> P_LINE CNF VARIABLE VARIABLE .)
+
