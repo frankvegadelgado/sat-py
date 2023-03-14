@@ -1,10 +1,11 @@
-#Frank Vega
-#March 13, 2023
-#We show that SAT is as difficult as solving the Homogeneous Diophantine Equation of Degree Two.
-#We transform this reduction to solve SAT instances.
-#The whole algorithm is based on the problem of several quadratic constraints which is feasible when we do not restrict the variables to be integers.
-#We use the Python programming language for making the whole reduction from SAT to NAE 3SAT. 
-#Finally, we use Z3 that is a theorem prover from Microsoft Research.
+#						  SAT Solver
+#						  Frank Vega
+#						March 14, 2023
+#	We show that SAT is as difficult as solving the Homogeneous Diophantine Equation of Degree Two.
+#	We transform this reduction to solve SAT instances.
+#	We use the Python programming language for making the whole reduction from SAT to NAE 3SAT. 
+#	The whole algorithm is based on several quadratic homogeneous constraints which is feasible.
+#	Finally, we use Z3 that is a theorem prover from Microsoft Research.
 
 import sys
 sys.path.append("include")
@@ -19,7 +20,7 @@ def vars(clauses):
 	return list(set([abs(t) for t in flat_list]))
 	
 class B:
-	def __init__(self, start: z3.BitVecRef):
+	def __init__(self, start):
 		self.value = start
 	def __mul__(self, other):
 		x = self.value

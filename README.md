@@ -123,7 +123,7 @@ from this well-known dataset [SAT Benchmarks](https://www.cs.ubc.ca/~hoos/SATLIB
 
 ````diff
 + This reduction runs in polynomial time: We reduce SAT to NAE 3SAT (This is a trivial and well-known polynomial time reduction).
-- The whole algorithm is based on several constraints which is feasible when we do not restrict the variables to be integers.
+- The whole algorithm is based on several quadratic homogeneous constraints which is feasible.
 ````
  
 
