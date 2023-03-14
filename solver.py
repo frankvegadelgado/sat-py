@@ -154,9 +154,9 @@ if __name__ == "__main__":
 					break
 		if truth == True:
 			print("s SATISFIABLE")
-			print ("v", end = " ")
+			sys.stdout.write("v ")
 			for w in solution:
-				print ('%s' % w, end = " ")
+				sys.stdout.write("%s " % w)
 			print("0")
 		
 				
