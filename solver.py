@@ -30,33 +30,85 @@ def sign(x, y):
 	else:
 		return ''
 
+
+class B:
+	def __init__(self, start: z3.BitVecRef):
+		self.value = start
+	def __mul__(self, other):
+		x = self.value
+		y = other.value
+		sz1 = x.sort().size()
+		sz2 = y.sort().size()
+		return B(z3.ZeroExt(sz2, x) * z3.ZeroExt(sz1, y))
+	def __add__(self, other):
+		x = self.value
+		y = other.value
+		sz1 = x.sort().size()
+		sz2 = y.sort().size()
+		rsz = max(sz1, sz2) + 1
+		return B(z3.ZeroExt(rsz - sz1, x) + z3.ZeroExt(rsz - sz2, y))
+	def __eq__(self, other):
+		x = self.value
+		y = other.value
+		sz1 = x.sort().size()
+		sz2 = y.sort().size()
+		rsz = max(sz1, sz2)
+		return z3.ZeroExt(rsz - sz1, x) == z3.ZeroExt(rsz - sz2, y)
+
+def num_bits(n):
+	assert(n >= 0)
+	r = 0
+	while n > 0:
+		r = r + 1
+		n = n / 2
+	if r == 0:
+		return 1
+	return r
+def val(x):
+	return z3.BitVecVal(x, num_bits(x))		
+
 def solve(dummy, clauses):
 	s = z3.Solver()
+	#s.set("timeout", 1800000)
 	variables = vars(clauses)
 	variables.sort()
-	x = [ z3.Real('x%s' % i) for i in range(2 * len(variables)) ]
+	x = [ z3.BitVec('x%s' % i, 1) for i in range(2 * len(variables)) ]
 	for i in range(len(variables)):
-		s.add(x[2*i] + x[2*i+1] - 2*x[2*i]*x[2*i+1] == 1.0)
+		s.add(B(x[2*i]) + B(x[2*i+1]) == B(val(1)) + B(val(2))*B(x[2*i])*B(x[2*i+1]))
 	index = variables.index(dummy)
-	s.add(x[2 * index] == 0.0, x[2 * index + 1] == 1.0)
+	s.add(B(x[2 * index]) == B(val(0)), B(x[2 * index + 1]) == B(val(1)))
 	for list in clauses:
 		a = 2 * variables.index(-list[0]) + 1 if (list[0] < 0) else 2 * variables.index(list[0])
 		b = 2 * variables.index(-list[1]) + 1 if (list[1] < 0) else 2 * variables.index(list[1])
 		c = 2 * variables.index(-list[2]) + 1 if (list[2] < 0) else 2 * variables.index(list[2])
-		s.add(x[a]+x[b]+x[c]-x[a]*x[b]-x[b]*x[c]-x[a]*x[c] == 1.0)
-		a = 2 * variables.index(-list[0]) if (list[0] < 0) else 2 * variables.index(list[0]) + 1
-		b = 2 * variables.index(-list[1]) if (list[1] < 0) else 2 * variables.index(list[1]) + 1
-		c = 2 * variables.index(-list[2]) if (list[2] < 0) else 2 * variables.index(list[2]) + 1
-		s.add(x[a]+x[b]+x[c]-x[a]*x[b]-x[b]*x[c]-x[a]*x[c] == 1.0)
-	
+		s.add(B(x[a])+B(x[b])+B(x[c]) == B(val(1)) + B(x[a])*B(x[b]) + B(x[a])*B(x[c]) + B(x[b])*B(x[c]))
 	result = s.check()
 	if result == z3.unsat:
 		print('s UNSATISFIABLE')
 	elif result == z3.unknown:
 		print('s UNKNOWN')
 	else:
-		print('s SATISFIABLE')
 		items = s.model()
+		#sol = []
+		#for list in clauses:
+		#	a = 2 * variables.index(-list[0]) + 1 if (list[0] < 0) else 2 * variables.index(list[0])
+		#	b = 2 * variables.index(-list[1]) + 1 if (list[1] < 0) else 2 * variables.index(list[1])
+		#	c = 2 * variables.index(-list[2]) + 1 if (list[2] < 0) else 2 * variables.index(list[2])
+		#	i = eval('%s' % items[x[a]])
+		#	j = eval('%s' % items[x[b]])
+		#	k = eval('%s' % items[x[c]])
+		#	nae = 2*i*i + 2*j*j + 2*k*k - 2*i*j - 2*i*k - 2*k*j
+		#	if nae != 2:
+		#		print('s UNSATISFIABLE')
+		#		sys.exit()
+		#for i in range(len(variables)):
+		#	j = eval('%s' % items[x[2*i]])
+		#	k = eval('%s' % items[x[2*i + 1]])
+		#	nae = j*j + k*k - 2*k*j
+		#	if nae != 1:
+		#		print('s UNSATISFIABLE')
+		#		sys.exit()
+		print('s SATISFIABLE')
 		answer = (x for x in items.decls() if int(x.name().replace('x','')) < 2 * index)
 		formatted = ' '.join((sign(items[x], items[y]) + str(variables[int(int(x.name().replace('x','')) / 2)])) for x, y in pairwise(sorted(answer, key=lambda x: int(x.name().replace('x','')))))
 		print('v '+formatted+' 0')
@@ -69,25 +121,26 @@ def reduction(dummy, clauses):
 		reduced.append([list[0], list[1], s])
 		reduced.append([list[2], -s, dummy])
 		s += 1
-	variables = vars(reduced)
-	for x in variables:
-		reduced.append([x, -x, s])
-		reduced.append([x, -x, -s])
+	#variables = vars(reduced)
+	#for x in variables:
+	#	reduced.append([x, -x, s])
+	#	reduced.append([x, -x, -s])
 	return reduced
 	
 def cnf3(dummy, clause):
 	reduced = []
 	s = dummy + 1
-	for list in clauses:
-		if len(list) == 1:
-			reduced.append([list[0], dummy, dummy])
-		elif len(list) == 2:
-			reduced.append([list[0], list[1], dummy])
-		elif len(list) == 3:
-			reduced.append(list)
+	for l in clauses:
+		C = list(set(l))
+		if len(C) == 1:
+			reduced.append([C[0], dummy, dummy])
+		elif len(C) == 2:
+			reduced.append([C[0], C[1], dummy])
+		elif len(C) == 3:
+			reduced.append(C)
 		else:
-			if len(list) > 0:
-				B = list
+			if len(C) > 0:
+				B = C
 				while True:
 					A = B[:2]
 					B = B[2:]
@@ -95,15 +148,9 @@ def cnf3(dummy, clause):
 					B.append(-s)
 					s += 1
 					reduced.append(A)
-					if len(B) <= 3:
+					if len(B) == 3:
 						break
-				if len(B) > 0:
-					if len(B) == 1:
-						reduced.append([B[0], dummy, dummy])
-					elif len(B) == 2:
-						reduced.append([B[0], B[1], dummy])
-					else:
-						reduced.append(B)
+				reduced.append(B)
 	return reduced					
 			
 					   

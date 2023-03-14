@@ -78,7 +78,8 @@ def p_empty(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input!")
+    #print("Syntax error in input!")
+	ignore = True
 
 #build the parser
 parser = yacc.yacc()
