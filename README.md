@@ -44,7 +44,7 @@ p cnf 4 2
 Downloading and Installing
 -----
 
-Install at least JDK 1.8 and Python 2.7 or a greater version 
+Install at least Python 2.7 or a greater version 
 
 Download and Install the following Number Theory Library 
 
